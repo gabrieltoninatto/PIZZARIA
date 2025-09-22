@@ -1,142 +1,22 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"os"
-	"pizzaria/models"
-	"strconv"
+	"pizzaria/internal/data"
+
+	"pizzaria/internal/handler"
 
 	"github.com/gin-gonic/gin"
 )
 
-var pizzas = []models.Pizza{
-	{ID: 1, Nome: "Toscana", Preco: 49.5},
-	{ID: 2, Nome: "Marguerita", Preco: 49.5},
-	{ID: 3, Nome: "Atum com queijo", Preco: 49.5},
-}
-
 func main() {
-	loadPizzas()
+	data.LoadPizzas()
 	router := gin.Default()
-	router.GET("/pizzas", getPizzas)
-	router.POST("/pizzas", postPizzas)
-	router.GET("/pizzas/:id", getPizzaByID)
+	router.GET("/pizzas", handler.GetPizzas)
+	router.POST("/pizzas", handler.PostPizzas)
+	router.GET("/pizzas/:id", handler.GetPizzaByID)
 	//deletar uma pizza
-	router.DELETE("/pizzas/:id", deletePizzaByID)
+	router.DELETE("/pizzas/:id", handler.DeletePizzaByID)
 	//editar pizza ou atualizar uma pizza
-	router.PUT("/pizzas/:id", updatePizzaByID)
+	router.PUT("/pizzas/:id", handler.UpdatePizzaByID)
 	router.Run()
-}
-
-func getPizzas(c *gin.Context) {
-
-	c.JSON(200, gin.H{
-		"pizzas": pizzas,
-	})
-}
-
-func postPizzas(c *gin.Context) {
-	var newPizza models.Pizza
-	if err := c.ShouldBindJSON(&newPizza); err != nil {
-		c.JSON(400, gin.H{
-			"error": err.Error()})
-		return
-	}
-	newPizza.ID = len(pizzas) + 1
-	pizzas = append(pizzas, newPizza)
-	savePizza()
-	c.JSON(201, newPizza)
-}
-
-func getPizzaByID(c *gin.Context) {
-	idParam := c.Param("id")
-	id, err := strconv.Atoi(idParam)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"erro": err.Error()})
-		return
-	}
-	for _, p := range pizzas {
-		if p.ID == id {
-			c.JSON(200, p)
-			return
-		}
-	}
-	c.JSON(404, gin.H{"message": "Pizza not found"})
-}
-
-func loadPizzas() {
-	file, err := os.Open("dados/pizza.json")
-	if err != nil {
-		fmt.Println("Error file", err)
-		return
-	}
-	defer file.Close()
-	decoder := json.NewDecoder(file)
-	if err := decoder.Decode(&pizzas); err != nil {
-		fmt.Println("Error decoding JSON", err)
-	}
-}
-
-func savePizza() {
-	file, err := os.Create("dados/pizza.json")
-	if err != nil {
-		fmt.Println("Error file", err)
-		return
-	}
-	defer file.Close()
-
-	encoder := json.NewEncoder(file)
-	if err := encoder.Encode(pizzas); err != nil {
-		fmt.Println("Error encoding JSON", err)
-	}
-}
-
-func deletePizzaByID(c *gin.Context) {
-	idParam := c.Param("id")
-	id, err := strconv.Atoi(idParam)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"erro": err.Error()})
-		return
-	}
-
-	for i, p := range pizzas {
-		if p.ID == id {
-			pizzas = append(pizzas[:i], pizzas[i+1:]...)
-			savePizza()
-			c.JSON(200, gin.H{"message": "Pizza deleted"})
-			return
-		}
-	}
-	c.JSON(404, gin.H{"message": "Pizza not found"})
-}
-
-func updatePizzaByID(c *gin.Context) {
-	idParam := c.Param("id")
-	id, err := strconv.Atoi(idParam)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"erro": err.Error()})
-		return
-	}
-
-	var updatePizza models.Pizza
-	if err := c.ShouldBindJSON(&updatePizza); err != nil {
-		c.JSON(400, gin.H{"erro": err.Error()})
-		return
-	}
-
-	for i, p := range pizzas {
-		if p.ID == id {
-			pizzas[i] = updatePizza
-			pizzas[i].ID = id
-			savePizza()
-			c.JSON(200, pizzas[i])
-			return
-		}
-	}
-
-	c.JSON(404, gin.H{"method": "pizza not found"})
 }
