@@ -1,1 +1,1 @@
-[{"ID":1,"Nome":"Toscana","Preco":49.5},{"ID":2,"Nome":"Marguerita","Preco":49.5},{"ID":3,"Nome":"Atum com queijo","Preco":49.99}]
+[{"ID":1,"Nome":"Toscana","Preco":49.5,"Review":[{"rating":1,"comment":"Pizza mais o menos"}]},{"ID":2,"Nome":"Marguerita","Preco":49.5,"Review":[{"rating":2,"comment":"Melhor pizza"},{"rating":5,"comment":"Pizza mais o menos"}]},{"ID":3,"Nome":"Atum com queijo","Preco":49.99,"Review":[{"rating":5,"comment":"Melhor pizza"}]}]
